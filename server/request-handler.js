@@ -15,7 +15,6 @@ var empty = {
   results: []
 };
 
-var storage = [];
 
 exports.requestHandler = function(request, response) {
   var statusCode = 200;
@@ -35,11 +34,28 @@ exports.requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  if(request.method === 'GET'){
-  console.log("Serving request type " + request.method + " for url " + request.url);
-  response.writeHead(statusCode, headers);
+  if(request.url === '/arglebargle'){
+    response.writeHead(404, headers)
+    response.end()
+  } else {
+    if(request.method === 'GET'){
+      console.log("Serving request type " + request.method + " for url " + request.url);
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify(empty))
+    } else if(request.method === 'POST'){
+  // request.on('response', function(){statusCode=201;});
+  // storage.push(request._postdata);
+  // console.log(request._postdata);
+    request.on('data', function(chunk){
+      empty.results.push(JSON.parse(chunk))
+      console.log(empty.results)
+      });
+    request.on('end', function(){
+      response.writeHead(201, headers)
+      response.end()
+    });
   }
-  
+  }
   //console.log(request);
   // empty.results.push(request);
   // console.log(JSON.stringify(empty.results[0]));
@@ -54,25 +70,14 @@ exports.requestHandler = function(request, response) {
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  if(request.method === 'POST'){
-  // request.on('response', function(){statusCode=201;});
-  response.writeHead(201, headers)
-  // storage.push(request._postdata);
-  // console.log(request._postdata);
-  request.on('data',function(data){empty.results.push(data)});
-  // response.on('end',function(){console.log(unescape(empty.results))});
-  }
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
   // up in the browser.
   //
-  if(request.url === '/arglebargle'){
-    response.writeHead(404 , headers)
-  }
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end(unescape(empty.results));
+  // response.end(JSON.stringify(empty));
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
