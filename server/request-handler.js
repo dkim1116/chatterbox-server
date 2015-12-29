@@ -14,14 +14,24 @@ this file and include it in basic-server.js so that it actually works.
 var empty = {
   results: []
 };
-
+var fs = require("fs");
+// var file = require('../client/index.html');
+// var app = require('../client/scripts/app.js');
+// var html = fs.readFileSync(file);
 
 exports.requestHandler = function(request, response) {
   var statusCode = 200;
   var headers = defaultCorsHeaders;
-  headers['Content-Type'] = "application/json";
+  // var local = process.cwd();
+  // var clientFolder = local + '/client';
+  var content;
+  headers['Content-Type'] = "text/html";
   // Request and Response come from node's http module.
-  //
+
+  //var content = fs.readFileSync(file);
+  //response.end(content)
+  //var something = (process.cwd()+'./client/index.html');
+
   // They include information about both the incoming request, such as
   // headers and URL, and about the outgoing response, such as its status
   // and content.
@@ -41,7 +51,14 @@ exports.requestHandler = function(request, response) {
     if(request.method === 'GET'){
       console.log("Serving request type " + request.method + " for url " + request.url);
       response.writeHead(statusCode, headers);
-      response.end(JSON.stringify(empty))
+      content = '../client/index.html';
+      fs.readFile(content, function(error, contents){
+        if(error){
+          console.log(error);
+        } else {
+          response.end(contents)
+        }
+      });
     } else if(request.method === 'POST'){
   // request.on('response', function(){statusCode=201;});
   // storage.push(request._postdata);
