@@ -14,6 +14,9 @@ this file and include it in basic-server.js so that it actually works.
 var empty = {
   results: []
 };
+
+var storage = [];
+
 exports.requestHandler = function(request, response) {
   var statusCode = 200;
   var headers = defaultCorsHeaders;
@@ -54,6 +57,10 @@ exports.requestHandler = function(request, response) {
   if(request.method === 'POST'){
   // request.on('response', function(){statusCode=201;});
   response.writeHead(201, headers)
+  // storage.push(request._postdata);
+  // console.log(request._postdata);
+  request.on('data',function(data){empty.results.push(data)});
+  // response.on('end',function(){console.log(unescape(empty.results))});
   }
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -65,7 +72,7 @@ exports.requestHandler = function(request, response) {
   }
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end(JSON.stringify(empty));
+  response.end(unescape(empty.results));
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
